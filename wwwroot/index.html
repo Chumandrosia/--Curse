@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛒 Інтернет-магазин взуття</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .logo h1 {
+            color: #2d3748;
+            font-size: 2rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .user-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .current-user {
+            display: none;
+            background: linear-gradient(45deg, #48bb78, #38a169);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .cart-summary {
+            display: none;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .cart-summary:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+        
+        .btn-success {
+            background: linear-gradient(45deg, #48bb78, #38a169);
+            color: white;
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.4);
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(72, 187, 120, 0.6);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(45deg, #f56565, #e53e3e);
+            color: white;
+            box-shadow: 0 4px 15px rgba(245, 101, 101, 0.4);
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 101, 101, 0.6);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(45deg, #ed8936, #dd6b20);
+            color: white;
+            box-shadow: 0 4px 15px rgba(237, 137, 54, 0.4);
+        }
+        
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(237, 137, 54, 0.6);
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .search-container {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        input[type="text"], input[type="number"], input[type="email"], select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .shoes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .shoe-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .shoe-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .shoe-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+        
+        .shoe-brand {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+        }
+        
+        .shoe-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+        
+        .shoe-price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #38a169;
+            margin-bottom: 15px;
+        }
+        
+        .shoe-description {
+            color: #4a5568;
+            font-style: italic;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+        
+        .card-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .stock-warning {
+            color: #e53e3e;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .out-of-stock {
+            opacity: 0.6;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal h2 {
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .cart-item {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .cart-item-info {
+            flex: 1;
+        }
+        
+        .cart-item-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .quantity-display {
+            padding: 5px 15px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 8px;
+            font-weight: 600;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .order-summary {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .order-total {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #38a169;
+            text-align: right;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #e2e8f0;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            font-size: 1.1rem;
+            color: #4a5568;
+        }
+        
+        .error {
+            background: linear-gradient(45deg, #fed7d7, #feb2b2);
+            color: #c53030;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .success {
+            background: linear-gradient(45deg, #c6f6d5, #9ae6b4);
+            color: #2f855a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .page-section {
+            display: none;
+        }
+        
+        .page-section.active {
+            display: block;
+        }
+        
+        .navigation {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .order-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .order-status {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-pending { background: #faf089; color: #744210; }
+        .status-confirmed { background: #bee3f8; color: #2c5aa0; }
+        .status-processing { background: #d69e2e; color: white; }
+        .status-shipped { background: #9ae6b4; color: #2f855a; }
+        .status-delivered { background: #68d391; color: #22543d; }
+        .status-cancelled { background: #feb2b2; color: #c53030; }
+        
+        @media (max-width: 768px) {
+            .controls, .user-controls, .form-actions, .navigation {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-container {
+                min-width: 100%;
+            }
+            
+            .shoes-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .cart-item {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+            
+            .order-header {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <h1>🛒 Інтернет-магазин взуття</h1>
+            </div>
+            <div class="user-controls">
+                <div class="current-user" id="currentUser"></div>
+                <div class="cart-summary" id="cartSummary" onclick="showPage('cart')">
+                    🛒 Кошик: <span id="cartCount">0</span> товарів
+                </div>
+                <button class="btn btn-primary" id="loginBtn" onclick="showLoginModal()">Увійти</button>
+                <button class="btn btn-success" id="registerBtn" onclick="showRegisterModal()">Реєстрація</button>
+                <button class="btn btn-warning" id="logoutBtn" onclick="logout()" style="display: none;">Вийти</button>
+            </div>
+        </header>
+        
+        <div class="error" id="errorMsg"></div>
+        <div class="success" id="successMsg"></div>
+        
+        <div class="navigation">
+            <button class="btn btn-primary" onclick="showPage('shop')">🏪 Магазин</button>
+            <button class="btn btn-primary" onclick="showPage('cart')" id="cartNavBtn" style="display: none;">🛒 Кошик</button>
+            <button class="btn btn-primary" onclick="showPage('orders')" id="ordersNavBtn" style="display: none;">📦 Мої замовлення</button>
+            <button class="btn btn-success" id="adminBtn" onclick="showPage('admin')" style="display: none;">⚙️ Адмін</button>
+        </div>
+        
+        <!-- Shop Section -->
+        <div class="page-section active" id="shopSection">
+            <div class="controls">
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="🔍 Пошук взуття за назвою, брендом, кольором...">
+                </div>
+                <select id="brandFilter">
+                    <option value="">Всі бренди</option>
+                </select>
+                <select id="categoryFilter">
+                    <option value="">Всі категорії</option>
+                </select>
+                <button class="btn btn-primary" onclick="loadShoes()">🔄 Оновити</button>
+            </div>
+            
+            <div class="loading" id="loading">Завантаження...</div>
+            <div class="shoes-grid" id="shoesGrid"></div>
+        </div>
+        
+        <!-- Cart Section -->
+        <div class="page-section" id="cartSection">
+            <h2>🛒 Ваш кошик</h2>
+            <div id="cartItems"></div>
+            <div class="order-summary" id="cartSummarySection" style="display: none;">
+                <div class="order-total">
+                    Загальна сума: <span id="cartTotal">0.00</span> ₴
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-danger" onclick="clearCart()">Очистити кошик</button>
+                    <button class="btn btn-success" onclick="showCheckoutModal()">Оформити замовлення</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Orders Section -->
+        <div class="page-section" id="ordersSection">
+            <h2>📦 Ваші замовлення</h2>
+            <div id="ordersList"></div>
+        </div>
+        
+        <!-- Admin Section -->
+        <div class="page-section" id="adminSection">
+            <h2>⚙️ Адміністрування</h2>
+            <div class="navigation">
+                <button class="btn btn-primary" onclick="showAdminShoes()">Управління взуттям</button>
+                <button class="btn btn-primary" onclick="showAdminOrders()">Управління замовленнями</button>
+                <button class="btn btn-primary" onclick="showAdminUsers()">Управління користувачами</button>
+            </div>
+            <div id="adminContent"></div>
+        </div>
+    </div>
+    
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <h2>Вхід в систему</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email:</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-danger" onclick="closeModal('loginModal')">Скасувати</button>
+                    <button type="submit" class="btn btn-success">Увійти</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Register Modal -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <h2>Реєстрація</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="regFirstName">Ім'я:</label>
+                    <input type="text" id="regFirstName" required>
+                </div>
+                <div class="form-group">
+                    <label for="regLastName">Прізвище:</label>
+                    <input type="text" id="regLastName" required>
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">Email:</label>
+                    <input type="email" id="regEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="regPhone">Телефон:</label>
+                    <input type="text" id="regPhone" required>
+                </div>
+                <div class="form-group">
+                    <label for="regAddress">Адреса:</label>
+                    <input type="text" id="regAddress" required>
+                </div>
+                <div class="form-group">
+                    <label for="regCity">Місто:</label>
+                    <input type="text" id="regCity" required>
+                </div>
+                <div class="form-group">
+                    <label for="regPostalCode">Поштовий індекс:</label>
+                    <input type="text" id="regPostalCode" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-danger" onclick="closeModal('registerModal')">Скасувати</button>
+                    <button type="submit" class="btn btn-success">Зареєструватися</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Checkout Modal -->
+    <div class="modal" id="checkoutModal">
+        <div class="modal-content">
+            <h2>Оформлення замовлення</h2>
+            <form id="checkoutForm">
+                <div class="form-group">
+                    <label for="shippingAddress">Адреса доставки:</label>
+                    <input type="text" id="shippingAddress" required>
+                </div>
+                <div class="form-group">
+                    <label for="shippingCity">Місто:</label>
+                    <input type="text" id="shippingCity" required>
+                </div>
+                <div class="form-group">
+                    <label for="shippingPostalCode">Поштовий індекс:</label>
+                    <input type="text" id="shippingPostalCode" required>
+                </div>
+                <div class="order-summary">
+                    <div class="order-total">
+                        Сума замовлення: <span id="checkoutTotal">0.00</span> ₴
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-danger" onclick="closeModal('checkoutModal')">Скасувати</button>
+                    <button type="submit" class="btn btn-success">Підтвердити замовлення</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = 'http://localhost:5235/api';
+        let currentUser = null;
+        let cartItems = [];
+        
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadShoes();
+            setupEventListeners();
+            checkAuthState();
+        });
+        
+        function setupEventListeners() {
+            document.getElementById('searchInput').addEventListener('input', searchShoes);
+            document.getElementById('brandFilter').addEventListener('change', filterShoes);
+            document.getElementById('categoryFilter').addEventListener('change', filterShoes);
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('registerForm').addEventListener('submit', handleRegister);
+            document.getElementById('checkoutForm').addEventListener('submit', handleCheckout);
+            
+            // Modal close handlers
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.style.display = 'none';
+                    }
+                });
+            });
+        }
+        
+        function checkAuthState() {
+            const userData = localStorage.getItem('currentUser');
+            if (userData) {
+                currentUser = JSON.parse(userData);
+                updateAuthUI();
+                loadCart();
+            }
+        }
+        
+        function updateAuthUI() {
+            if (currentUser) {
+                document.getElementById('currentUser').textContent = `Привіт, ${currentUser.firstName}!`;
+                document.getElementById('currentUser').style.display = 'block';
+                document.getElementById('cartSummary').style.display = 'block';
+                document.getElementById('loginBtn').style.display = 'none';
+                document.getElementById('registerBtn').style.display = 'none';
+                document.getElementById('logoutBtn').style.display = 'block';
+                document.getElementById('cartNavBtn').style.display = 'block';
+                document.getElementById('ordersNavBtn').style.display = 'block';
+                
+                if (currentUser.isAdmin) {
+                    document.getElementById('adminBtn').style.display = 'block';
+                }
+            } else {
+                document.getElementById('currentUser').style.display = 'none';
+                document.getElementById('cartSummary').style.display = 'none';
+                document.getElementById('loginBtn').style.display = 'block';
+                document.getElementById('registerBtn').style.display = 'block';
+                document.getElementById('logoutBtn').style.display = 'none';
+                document.getElementById('cartNavBtn').style.display = 'none';
+                document.getElementById('ordersNavBtn').style.display = 'none';
+                document.getElementById('adminBtn').style.display = 'none';
+            }
+        }
+        
+        async function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/users/email/${encodeURIComponent(email)}`);
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error('Користувача з таким email не знайдено');
+                    }
+                    throw new Error('Помилка входу в систему');
+                }
+                
+                const user = await response.json();
+                currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                
+                closeModal('loginModal');
+                updateAuthUI();
+                loadCart();
+                showSuccess('Успішний вхід в систему!');
+            } catch (error) {
+                showError('Помилка входу: ' + error.message);
+            }
+        }
+        
+        async function handleRegister(event) {
+            event.preventDefault();
+            
+            const user = {
+                firstName: document.getElementById('regFirstName').value,
+                lastName: document.getElementById('regLastName').value,
+                email: document.getElementById('regEmail').value,
+                phone: document.getElementById('regPhone').value,
+                address: document.getElementById('regAddress').value,
+                city: document.getElementById('regCity').value,
+                postalCode: document.getElementById('regPostalCode').value,
+                country: 'Україна'
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/users`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(user)
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 409) {
+                        throw new Error('Користувач з таким email вже існує');
+                    }
+                    throw new Error('Помилка реєстрації');
+                }
+                
+                const createdUser = await response.json();
+                currentUser = createdUser;
+                localStorage.setItem('currentUser', JSON.stringify(createdUser));
+                
+                closeModal('registerModal');
+                updateAuthUI();
+                showSuccess('Успішна реєстрація та вхід в систему!');
+            } catch (error) {
+                showError('Помилка реєстрації: ' + error.message);
+            }
+        }
+        
+        function logout() {
+            currentUser = null;
+            cartItems = [];
+            localStorage.removeItem('currentUser');
+            updateAuthUI();
+            updateCartUI();
+            showPage('shop');
+            showSuccess('Ви успішно вийшли з системи');
+        }
+        
+        async function loadShoes() {
+            showLoading(true);
+            try {
+                const response = await fetch(`${API_BASE}/shoes`);
+                if (!response.ok) throw new Error('Помилка завантаження взуття');
+                
+                const shoes = await response.json();
+                displayShoes(shoes);
+                updateFilters(shoes);
+            } catch (error) {
+                showError('Помилка: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        function displayShoes(shoes) {
+            const grid = document.getElementById('shoesGrid');
+            
+            if (shoes.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; color: #666; grid-column: 1/-1;">Взуття не знайдено</p>';
+                return;
+            }
+            
+            grid.innerHTML = shoes.map(shoe => `
+                <div class="shoe-card ${shoe.stockQuantity === 0 ? 'out-of-stock' : ''}">
+                    <div class="shoe-name">${shoe.name}</div>
+                    <div class="shoe-brand">${shoe.brand}</div>
+                    <div class="shoe-details">
+                        <div><strong>Розмір:</strong> ${shoe.size}</div>
+                        <div><strong>Колір:</strong> ${shoe.color}</div>
+                        <div><strong>Категорія:</strong> ${shoe.category}</div>
+                        <div><strong>На складі:</strong> ${shoe.stockQuantity} шт.</div>
+                    </div>
+                    <div class="shoe-price">${shoe.price.toFixed(2)} ₴</div>
+                    ${shoe.description ? `<div class="shoe-description">${shoe.description}</div>` : ''}
+                    ${shoe.stockQuantity <= 5 && shoe.stockQuantity > 0 ? `<div class="stock-warning">⚠️ Залишилося ${shoe.stockQuantity} шт.</div>` : ''}
+                    <div class="card-buttons">
+                        ${currentUser && shoe.stockQuantity > 0 ? 
+                            `<button class="btn btn-success" onclick="addToCart(${shoe.id})">🛒 Додати в кошик</button>` :
+                            shoe.stockQuantity === 0 ? 
+                                '<span style="color: #e53e3e; font-weight: 600;">Немає в наявності</span>' :
+                                '<span style="color: #666;">Увійдіть для покупки</span>'
+                        }
+                        ${currentUser && currentUser.isAdmin ? 
+                            `<button class="btn btn-primary" onclick="editShoe(${shoe.id})">Редагувати</button>
+                             <button class="btn btn-danger" onclick="deleteShoe(${shoe.id})">Видалити</button>` : ''
+                        }
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function updateFilters(shoes) {
+            const brands = [...new Set(shoes.map(shoe => shoe.brand))];
+            const categories = [...new Set(shoes.map(shoe => shoe.category))];
+            
+            const brandFilter = document.getElementById('brandFilter');
+            const categoryFilter = document.getElementById('categoryFilter');
+            
+            brandFilter.innerHTML = '<option value="">Всі бренди</option>' + 
+                brands.map(brand => `<option value="${brand}">${brand}</option>`).join('');
+            
+            categoryFilter.innerHTML = '<option value="">Всі категорії</option>' + 
+                categories.map(category => `<option value="${category}">${category}</option>`).join('');
+        }
+        
+        async function addToCart(shoeId) {
+            if (!currentUser) {
+                showError('Спочатку увійдіть в систему');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/cart/${currentUser.id}/add`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ shoeId: shoeId, quantity: 1 })
+                });
+                
+                if (!response.ok) throw new Error('Помилка додавання в кошик');
+                
+                await loadCart();
+                showSuccess('Товар додано в кошик!');
+            } catch (error) {
+                showError('Помилка: ' + error.message);
+            }
+        }
+        
+        async function loadCart() {
+            if (!currentUser) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/cart/${currentUser.id}`);
+                if (!response.ok) throw new Error('Помилка завантаження кошика');
+                
+                cartItems = await response.json();
+                updateCartUI();
+                displayCart();
+            } catch (error) {
+                showError('Помилка завантаження кошика: ' + error.message);
+            }
+        }
+        
+        function updateCartUI() {
+            const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartCount').textContent = totalItems;
+        }
+        
+        function displayCart() {
+            const cartContainer = document.getElementById('cartItems');
+            const summarySection = document.getElementById('cartSummarySection');
+            
+            if (cartItems.length === 0) {
+                cartContainer.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">Ваш кошик порожній</p>';
+                summarySection.style.display = 'none';
+                return;
+            }
+            
+            const total = cartItems.reduce((sum, item) => sum + (item.quantity * item.shoe.price), 0);
+            
+            cartContainer.innerHTML = cartItems.map(item => `
+                <div class="cart-item">
+                    <div class="cart-item-info">
+                        <h3>${item.shoe.name}</h3>
+                        <p>${item.shoe.brand} | Розмір: ${item.shoe.size} | Колір: ${item.shoe.color}</p>
+                        <p><strong>${item.shoe.price.toFixed(2)} ₴</strong> за шт.</p>
+                    </div>
+                    <div class="cart-item-actions">
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" onclick="updateCartQuantity(${item.shoeId}, ${item.quantity - 1})">-</button>
+                            <div class="quantity-display">${item.quantity}</div>
+                            <button class="quantity-btn" onclick="updateCartQuantity(${item.shoeId}, ${item.quantity + 1})">+</button>
+                        </div>
+                        <button class="btn btn-danger" onclick="removeFromCart(${item.shoeId})">Видалити</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('cartTotal').textContent = total.toFixed(2);
+            summarySection.style.display = 'block';
+        }
+        
+        async function updateCartQuantity(shoeId, newQuantity) {
+            if (newQuantity <= 0) {
+                await removeFromCart(shoeId);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/cart/${currentUser.id}/update`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ shoeId: shoeId, quantity: newQuantity })
+                });
+                
+                if (!response.ok) throw new Error('Помилка оновлення кошика');
+                
+                await loadCart();
+            } catch (error) {
+                showError('Помилка: ' + error.message);
+            }
+        }
+        
+        async function removeFromCart(shoeId) {
+            try {
+                const response = await fetch(`${API_BASE}/cart/${currentUser.id}/remove/${shoeId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) throw new Error('Помилка видалення з кошика');
+                
+                await loadCart();
+                showSuccess('Товар видалено з кошика');
+            } catch (error) {
+                showError('Помилка: ' + error.message);
+            }
+        }
+        
+        async function clearCart() {
+            if (!confirm('Ви впевнені, що хочете очистити кошик?')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/cart/${currentUser.id}/clear`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) throw new Error('Помилка очищення кошика');
+                
+                await loadCart();
+                showSuccess('Кошик очищено');
+            } catch (error) {
+                showError('Помилка: ' + error.message);
+            }
+        }
+        
+        function showCheckoutModal() {
+            if (cartItems.length === 0) {
+                showError('Кошик порожній');
+                return;
+            }
+            
+            // Pre-fill with user data
+            document.getElementById('shippingAddress').value = currentUser.address || '';
+            document.getElementById('shippingCity').value = currentUser.city || '';
+            document.getElementById('shippingPostalCode').value = currentUser.postalCode || '';
+            
+            const total = cartItems.reduce((sum, item) => sum + (item.quantity * item.shoe.price), 0);
+            document.getElementById('checkoutTotal').textContent = total.toFixed(2);
+            
+            document.getElementById('checkoutModal').style.display = 'block';
+        }
+        
+        async function handleCheckout(event) {
+            event.preventDefault();
+            
+            const orderData = {
+                shippingAddress: document.getElementById('shippingAddress').value,
+                shippingCity: document.getElementById('shippingCity').value,
+                shippingPostalCode: document.getElementById('shippingPostalCode').value,
+                shippingCountry: 'Україна'
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/orders/create/${currentUser.id}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData)
+                });
+                
+                if (!response.ok) throw new Error('Помилка створення замовлення');
+                
+                const order = await response.json();
+                
+                closeModal('checkoutModal');
+                await loadCart();
+                showSuccess(`Замовлення ${order.orderNumber} успішно створено!`);
+                showPage('orders');
+            } catch (error) {
+                showError('Помилка створення замовлення: ' + error.message);
+            }
+        }
+        
+        async function loadOrders() {
+            if (!currentUser) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/orders/user/${currentUser.id}`);
+                if (!response.ok) throw new Error('Помилка завантаження замовлень');
+                
+                const orders = await response.json();
+                displayOrders(orders);
+            } catch (error) {
+                showError('Помилка завантаження замовлень: ' + error.message);
+            }
+        }
+        
+        function displayOrders(orders) {
+            const ordersContainer = document.getElementById('ordersList');
+            
+            if (orders.length === 0) {
+                ordersContainer.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">У вас поки немає замовлень</p>';
+                return;
+            }
+            
+            ordersContainer.innerHTML = orders.map(order => `
+                <div class="order-card">
+                    <div class="order-header">
+                        <div>
+                            <h3>Замовлення ${order.orderNumber}</h3>
+                            <p>Дата: ${new Date(order.createdAt).toLocaleDateString('uk-UA')}</p>
+                            <p>Адреса доставки: ${order.shippingAddress}, ${order.shippingCity}</p>
+                            ${order.trackingNumber ? `<p>Номер відстеження: <strong>${order.trackingNumber}</strong></p>` : ''}
+                        </div>
+                        <div>
+                            <div class="order-status status-${getStatusCssClass(order.status)}">${getStatusText(order.status)}</div>
+                            <div style="margin-top: 10px; font-size: 1.2rem; font-weight: 700; color: #38a169;">
+                                ${order.totalAmount.toFixed(2)} ₴
+                            </div>
+                        </div>
+                    </div>
+                    <div class="order-items">
+                        ${order.orderItems ? order.orderItems.map(item => `
+                            <div style="padding: 10px; background: rgba(0,0,0,0.05); margin: 5px 0; border-radius: 8px;">
+                                <strong>${item.shoe.name}</strong> (${item.shoe.brand}) - 
+                                ${item.quantity} шт. × ${item.price.toFixed(2)} ₴
+                            </div>
+                        `).join('') : '<p>Немає товарів</p>'}
+                    </div>
+                    ${order.status <= 2 ? `
+                        <div style="margin-top: 15px;">
+                            <button class="btn btn-danger" onclick="cancelOrder(${order.id})">Скасувати замовлення</button>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+        
+        function getStatusCssClass(status) {
+            const statusCssMap = {
+                0: 'pending',
+                1: 'confirmed', 
+                2: 'processing',
+                3: 'shipped',
+                4: 'delivered',
+                5: 'cancelled'
+            };
+            return statusCssMap[status] || 'unknown';
+        }
+        
+        function getStatusText(status) {
+            const statusMap = {
+                0: 'Очікує',
+                1: 'Підтверджено',
+                2: 'В обробці',
+                3: 'Відправлено',
+                4: 'Доставлено',
+                5: 'Скасовано'
+            };
+            return statusMap[status] || 'Невідомо';
+        }
+        
+        async function cancelOrder(orderId) {
+            if (!confirm('Ви впевнені, що хочете скасувати це замовлення?')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/orders/${orderId}/cancel`, {
+                    method: 'POST'
+                });
+                
+                if (!response.ok) throw new Error('Помилка скасування замовлення');
+                
+                await loadOrders();
+                showSuccess('Замовлення успішно скасовано');
+            } catch (error) {
+                showError('Помилка скасування замовлення: ' + error.message);
+            }
+        }
+        
+        // Search and filter functions (same as before)
+        async function searchShoes() {
+            const searchTerm = document.getElementById('searchInput').value;
+            if (searchTerm.length === 0) {
+                loadShoes();
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/shoes/search?term=${encodeURIComponent(searchTerm)}`);
+                if (!response.ok) throw new Error('Помилка пошуку');
+                
+                const shoes = await response.json();
+                displayShoes(shoes);
+            } catch (error) {
+                showError('Помилка пошуку: ' + error.message);
+            }
+        }
+        
+        async function filterShoes() {
+            const brand = document.getElementById('brandFilter').value;
+            const category = document.getElementById('categoryFilter').value;
+            
+            if (!brand && !category) {
+                loadShoes();
+                return;
+            }
+            
+            try {
+                let url = `${API_BASE}/shoes`;
+                if (brand) url = `${API_BASE}/shoes/brand/${encodeURIComponent(brand)}`;
+                else if (category) url = `${API_BASE}/shoes/category/${encodeURIComponent(category)}`;
+                
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Помилка фільтрації');
+                
+                const shoes = await response.json();
+                displayShoes(shoes);
+            } catch (error) {
+                showError('Помилка фільтрації: ' + error.message);
+            }
+        }
+        
+        // Page navigation
+        function showPage(page) {
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            document.getElementById(page + 'Section').classList.add('active');
+            
+            if (page === 'orders') {
+                loadOrders();
+            } else if (page === 'cart') {
+                loadCart();
+            }
+        }
+        
+        // Modal functions
+        function showLoginModal() {
+            document.getElementById('loginModal').style.display = 'block';
+        }
+        
+        function showRegisterModal() {
+            document.getElementById('registerModal').style.display = 'block';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        // Utility functions
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMsg');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => errorDiv.style.display = 'none', 5000);
+        }
+        
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMsg');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            setTimeout(() => successDiv.style.display = 'none', 3000);
+        }
+        
+        // Admin functions (placeholder)
+        function showAdminShoes() {
+            document.getElementById('adminContent').innerHTML = '<p>Адміністрування взуття - в розробці</p>';
+        }
+        
+        function showAdminOrders() {
+            document.getElementById('adminContent').innerHTML = '<p>Адміністрування замовлень - в розробці</p>';
+        }
+        
+        function showAdminUsers() {
+            document.getElementById('adminContent').innerHTML = '<p>Адміністрування користувачів - в розробці</p>';
+        }
+        
+        // Placeholder for shoe editing (admin)
+        function editShoe(id) {
+            showError('Функція редагування в розробці');
+        }
+        
+        function deleteShoe(id) {
+            showError('Функція видалення в розробці');
+        }
+    </script>
+</body>
+</html>
