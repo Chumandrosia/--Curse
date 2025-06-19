@@ -1252,17 +1252,14 @@
             }
         }
         
-        // ВИПРАВЛЕНА функція пошуку
         async function searchShoes() {
             const searchTerm = document.getElementById('searchInput').value;
             
             if (searchTerm.length === 0) {
-                // Якщо пошук очищено, застосовуємо інші фільтри
                 filterShoes();
                 return;
             }
             
-            // Викликаємо загальну функцію фільтрації
             filterShoes();
         }
         
