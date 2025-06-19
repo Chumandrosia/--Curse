@@ -426,6 +426,16 @@
         .status-shipped { background: #9ae6b4; color: #2f855a; }
         .status-delivered { background: #68d391; color: #22543d; }
         .status-cancelled { background: #feb2b2; color: #c53030; }
+
+        .filter-debug {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+            color: white;
+            display: none;
+        }
         
         @media (max-width: 768px) {
             .controls, .user-controls, .form-actions, .navigation {
@@ -480,6 +490,7 @@
             <button class="btn btn-primary" onclick="showPage('cart')" id="cartNavBtn" style="display: none;">🛒 Кошик</button>
             <button class="btn btn-primary" onclick="showPage('orders')" id="ordersNavBtn" style="display: none;">📦 Мої замовлення</button>
             <button class="btn btn-success" id="adminBtn" onclick="showPage('admin')" style="display: none;">⚙️ Адмін</button>
+            <button class="btn btn-warning" onclick="testFilters()" style="font-size: 12px;">🔧 Тест фільтрів</button>
         </div>
         
         <!-- Shop Section -->
@@ -496,6 +507,8 @@
                 </select>
                 <button class="btn btn-primary" onclick="loadShoes()">🔄 Оновити</button>
             </div>
+
+            <div class="filter-debug" id="filterDebug"></div>
             
             <div class="loading" id="loading">Завантаження...</div>
             <div class="shoes-grid" id="shoesGrid"></div>
@@ -626,6 +639,7 @@
         const API_BASE = 'http://localhost:5235/api';
         let currentUser = null;
         let cartItems = [];
+        let allShoes = []; // Кешуємо всі взуття для кращої фільтрації
         
         // Load data on page load
         document.addEventListener('DOMContentLoaded', function() {
@@ -770,10 +784,13 @@
                 if (!response.ok) throw new Error('Помилка завантаження взуття');
                 
                 const shoes = await response.json();
+                allShoes = shoes; // Зберігаємо в кеш
                 displayShoes(shoes);
                 updateFilters(shoes);
+                updateFilterDebug('Завантажено взуття', shoes.length);
             } catch (error) {
                 showError('Помилка: ' + error.message);
+                updateFilterDebug('Помилка завантаження', error.message);
             } finally {
                 showLoading(false);
             }
@@ -817,17 +834,150 @@
         }
         
         function updateFilters(shoes) {
-            const brands = [...new Set(shoes.map(shoe => shoe.brand))];
-            const categories = [...new Set(shoes.map(shoe => shoe.category))];
+            const brands = [...new Set(shoes.map(shoe => shoe.brand))].sort();
+            const categories = [...new Set(shoes.map(shoe => shoe.category))].sort();
             
             const brandFilter = document.getElementById('brandFilter');
             const categoryFilter = document.getElementById('categoryFilter');
             
+            // Зберігаємо поточні значення
+            const currentBrand = brandFilter.value;
+            const currentCategory = categoryFilter.value;
+            
             brandFilter.innerHTML = '<option value="">Всі бренди</option>' + 
-                brands.map(brand => `<option value="${brand}">${brand}</option>`).join('');
+                brands.map(brand => 
+                    `<option value="${brand}" ${brand === currentBrand ? 'selected' : ''}>${brand}</option>`
+                ).join('');
             
             categoryFilter.innerHTML = '<option value="">Всі категорії</option>' + 
-                categories.map(category => `<option value="${category}">${category}</option>`).join('');
+                categories.map(category => 
+                    `<option value="${category}" ${category === currentCategory ? 'selected' : ''}>${category}</option>`
+                ).join('');
+        }
+
+        function updateFilterDebug(action, data) {
+            const debugElement = document.getElementById('filterDebug');
+            const brand = document.getElementById('brandFilter').value;
+            const category = document.getElementById('categoryFilter').value;
+            const search = document.getElementById('searchInput').value;
+            
+            debugElement.innerHTML = `
+                <strong>Фільтри:</strong> 
+                Бренд: "${brand || 'Всі'}" | 
+                Категорія: "${category || 'Всі'}" | 
+                Пошук: "${search || 'Немає'}" | 
+                ${action}: ${data}
+            `;
+            debugElement.style.display = 'block';
+            
+            // Ховаємо через 5 секунд
+            setTimeout(() => {
+                debugElement.style.display = 'none';
+            }, 5000);
+        }
+        
+        // ВИПРАВЛЕНА функція фільтрації
+        async function filterShoes() {
+            const brand = document.getElementById('brandFilter').value;
+            const category = document.getElementById('categoryFilter').value;
+            const searchTerm = document.getElementById('searchInput').value;
+            
+            try {
+                let filteredShoes = [...allShoes]; // Працюємо з кешованими даними
+                
+                // Фільтр по бренду
+                if (brand) {
+                    filteredShoes = filteredShoes.filter(shoe => 
+                        shoe.brand.toLowerCase() === brand.toLowerCase()
+                    );
+                }
+                
+                // Фільтр по категорії
+                if (category) {
+                    filteredShoes = filteredShoes.filter(shoe => 
+                        shoe.category.toLowerCase() === category.toLowerCase()
+                    );
+                }
+                
+                // Фільтр по пошуку
+                if (searchTerm && searchTerm.length > 0) {
+                    const searchLower = searchTerm.toLowerCase();
+                    filteredShoes = filteredShoes.filter(shoe => 
+                        shoe.name.toLowerCase().includes(searchLower) ||
+                        shoe.brand.toLowerCase().includes(searchLower) ||
+                        shoe.color.toLowerCase().includes(searchLower) ||
+                        shoe.category.toLowerCase().includes(searchLower) ||
+                        (shoe.description && shoe.description.toLowerCase().includes(searchLower))
+                    );
+                }
+                
+                displayShoes(filteredShoes);
+                updateFilterDebug('Фільтрація завершена', `${filteredShoes.length} результатів`);
+                
+            } catch (error) {
+                showError('Помилка фільтрації: ' + error.message);
+                updateFilterDebug('Помилка фільтрації', error.message);
+            }
+        }
+
+
+
+        // Функція діагностики
+        async function testFilters() {
+            console.log('🔧 Тестування фільтрів...');
+            
+            try {
+                // Тест 1: Перевірити, які дані є в базі
+                const response = await fetch(`${API_BASE}/shoes`);
+                if (!response.ok) {
+                    throw new Error(`API недоступний: ${response.status} ${response.statusText}`);
+                }
+                
+                const shoes = await response.json();
+                console.log('✅ Загальна кількість взуття:', shoes.length);
+                
+                const brands = [...new Set(shoes.map(s => s.brand))];
+                const categories = [...new Set(shoes.map(s => s.category))];
+                
+                console.log('📋 Доступні бренди:', brands);
+                console.log('📋 Доступні категорії:', categories);
+                
+                // Тест 2: Перевірити API endpoints
+                if (brands.length > 0) {
+                    const testBrand = brands[0];
+                    const brandResponse = await fetch(`${API_BASE}/shoes/brand/${encodeURIComponent(testBrand)}`);
+                    console.log(`🔍 Тест бренду "${testBrand}":`, brandResponse.ok ? '✅ Працює' : '❌ Не працює');
+                    
+                    if (brandResponse.ok) {
+                        const brandShoes = await brandResponse.json();
+                        console.log(`   - Знайдено ${brandShoes.length} товарів`);
+                    }
+                }
+                
+                if (categories.length > 0) {
+                    const testCategory = categories[0];
+                    const categoryResponse = await fetch(`${API_BASE}/shoes/category/${encodeURIComponent(testCategory)}`);
+                    console.log(`🔍 Тест категорії "${testCategory}":`, categoryResponse.ok ? '✅ Працює' : '❌ Не працює');
+                    
+                    if (categoryResponse.ok) {
+                        const categoryShoes = await categoryResponse.json();
+                        console.log(`   - Знайдено ${categoryShoes.length} товарів`);
+                    }
+                }
+                
+                // Тест 3: Перевірити локальну фільтрацію
+                console.log('🔍 Тестування локальної фільтрації...');
+                const testLocalFilter = shoes.filter(shoe => shoe.brand === brands[0]);
+                console.log(`   - Локальна фільтрація: ${testLocalFilter.length} результатів`);
+                
+                showSuccess('Тест фільтрів завершено. Перевірте консоль (F12) для деталей.');
+                updateFilterDebug('Тест завершено', 'Див. консоль браузера');
+                
+            } catch (error) {
+                console.error('❌ Помилка тестування:', error);
+                showError('Помилка тестування: ' + error.message);
+                updateFilterDebug('Помилка тесту', error.message);
+            }
         }
         
         async function addToCart(shoeId) {
@@ -1102,47 +1252,18 @@
             }
         }
         
-        // Search and filter functions (same as before)
+        // ВИПРАВЛЕНА функція пошуку
         async function searchShoes() {
             const searchTerm = document.getElementById('searchInput').value;
+            
             if (searchTerm.length === 0) {
-                loadShoes();
+                // Якщо пошук очищено, застосовуємо інші фільтри
+                filterShoes();
                 return;
             }
             
-            try {
-                const response = await fetch(`${API_BASE}/shoes/search?term=${encodeURIComponent(searchTerm)}`);
-                if (!response.ok) throw new Error('Помилка пошуку');
-                
-                const shoes = await response.json();
-                displayShoes(shoes);
-            } catch (error) {
-                showError('Помилка пошуку: ' + error.message);
-            }
-        }
-        
-        async function filterShoes() {
-            const brand = document.getElementById('brandFilter').value;
-            const category = document.getElementById('categoryFilter').value;
-            
-            if (!brand && !category) {
-                loadShoes();
-                return;
-            }
-            
-            try {
-                let url = `${API_BASE}/shoes`;
-                if (brand) url = `${API_BASE}/shoes/brand/${encodeURIComponent(brand)}`;
-                else if (category) url = `${API_BASE}/shoes/category/${encodeURIComponent(category)}`;
-                
-                const response = await fetch(url);
-                if (!response.ok) throw new Error('Помилка фільтрації');
-                
-                const shoes = await response.json();
-                displayShoes(shoes);
-            } catch (error) {
-                showError('Помилка фільтрації: ' + error.message);
-            }
+            // Викликаємо загальну функцію фільтрації
+            filterShoes();
         }
         
         // Page navigation
